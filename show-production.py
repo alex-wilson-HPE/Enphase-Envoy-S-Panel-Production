@@ -1,6 +1,6 @@
 envoy_ip = '192.168.1.254'    # change this line to reflect your envoy ip
-user = 'envoy'
-passwd = '999999'             # change this line to reflect your envoy's password
+user     = 'envoy'
+passwd   = '999999'           # change this line to reflect your envoy's password
 
 # define a list of inverters related to their array position
 # this will be different for each site and the html tables written out
@@ -40,8 +40,8 @@ array_to_serial = \
 '121312345680',
 '121312345681',
 '121312345682',
-'121312345683', 
-'121312345684', 
+'121312345683',
+'121312345684',
 '121312345685',
 '121312345686',
 '121312345687',
@@ -61,15 +61,15 @@ array_to_loc = \
   ("West Array",12) \
 ]
 
-#--------------------------------------------------------------------------------------------------------------------------------------# 
+#--------------------------------------------------------------------------------------------------------------------------------------#
 # Name:               show-production.py
 #
-# Purpose:            Read Envoy inverter solar production data directly from the #                     Envoy.  
+# Purpose:            Read Envoy inverter solar production data directly from the #                     Envoy.
 #                           Data is displayed in a Web browser window.
-#                           A temp file named: envoy-production.html is used 
+#                           A temp file named: envoy-production.html is used
 #                           for the display
 #                           and may be deleted.
-#                           Digest authentication must be used to log into the envoy. 
+#                           Digest authentication must be used to log into the envoy.
 #                           JSON data is parsed using the standard Python JSON #                           module, and
 #                           Python list and dictionary objects.
 #
@@ -106,7 +106,7 @@ def convertJsonDatetoPython( jsonDate ):
 
 def writePVArrayTable( outFile, size ):
 	# writes out a table for 12 inverters in a 4 x 3 table using the table_index which is incremented inside this function
-	global table_index  # make table_index writable 
+	global table_index  # make table_index writable
 	outFile.write("<table border='1' cellpadding='2'>" + "\n")
 	outFile.write("<tbody>" + "\n")
 
@@ -136,7 +136,7 @@ def writePVArrayTable( outFile, size ):
 			rgb = 'rgb(0, ' + str(green_value) + ', ' + str(blue_value) + ');'
 			outFile.write("<td style='vertical-align: top; width: 10vw; height: 150px; background-color: " + \
 			rgb + " font-size: 1em; font-weight: bold; color: white;'>" + "\n" )
-			
+
 			power_color = "#00ff00"
 			if current_power[table_index] >= max_power[table_index]:
 				power_color = "#b30000"
@@ -149,11 +149,11 @@ def writePVArrayTable( outFile, size ):
 			outFile.write("</td>" + "\n" )
 			table_index = table_index + 1
 			# end of the column
-		
+
 		# write out the end of the row
 		outFile.write("</tr>" + "\n")
-	
-	# write out the end of the table and the end of the html page       
+
+	# write out the end of the table and the end of the html page
 	outFile.write("</tbody>" + "\n")
 	outFile.write("</table>" + "\n")
 	outFile.write( '<br>' +"\n")
@@ -168,14 +168,14 @@ def read_envoy_data( envoy_ip_addr, username, password ):
 	import urllib.request
 	import json
 	import socket
-	
+
 	socket.setdefaulttimeout(30)
 
-	productionTableString = '/api/v1/production/inverters/' 
+	productionTableString = '/api/v1/production/inverters/'
 
 	# build the full url to get the production Table
 	url = 'http://' + envoy_ip_addr + productionTableString
-	
+
 	# https://docs.python.org/3.4/howto/urllib2.html#id5
 	#
 	# If you would like to request Authorization header for basic Authentication,
@@ -184,10 +184,10 @@ def read_envoy_data( envoy_ip_addr, username, password ):
 	passman.add_password(None, url, username, password)
 	#authhandler = urllib.request.HTTPBasicAuthHandler(passman)
 	authhandler = urllib.request.HTTPDigestAuthHandler(passman)
-	
+
 	opener = urllib.request.build_opener(authhandler)
 	urllib.request.install_opener(opener)
-	
+
 	try:
 		response = urllib.request.urlopen(url,  timeout=30)
 	except urllib.error.URLError as error:
@@ -196,7 +196,7 @@ def read_envoy_data( envoy_ip_addr, username, password ):
 	except socket.timeout:
 		print('Connection to {} timed out, '.format( url))
 		quit()  # exit the script - cannot connect
-	
+
 	try:
 		# Convert bytes to string type and string type to dict
 		string = response.read().decode('utf-8')
@@ -208,20 +208,20 @@ def read_envoy_data( envoy_ip_addr, username, password ):
 		print('Reading data at {} had a socket timeout getting inventory, '.format( url))
 		response.close()  # close the connection on error
 		quit()  # exit the script - read data timeout
-		
+
 	json_data = json.loads(string)
-	
+
 	#close the open response object
 	#urllib.request.urlcleanup()
 	response.close()
 	return json_data
 	# end of function read_envoy_data
-	# ------------------------------------------------ 
+	# ------------------------------------------------
 
-def main():    
+def main():
 	# call function read event log data from the envoy
 	data = read_envoy_data(envoy_ip, user, passwd )
-	
+
 	# the following loop loads the lists with values from the Envoy
 	for item in data:
 		if item['serialNumber'] in array_to_serial:
@@ -265,5 +265,5 @@ def main():
 	# end of main() function
 	# ----------------------------------
 
-# call main() function to run program    
+# call main() function to run program
 main()
